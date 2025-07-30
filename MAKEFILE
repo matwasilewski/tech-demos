@@ -1,0 +1,13 @@
+.PHONY: help 
+
+GIT_SHA ?= $(shell git rev-parse --short HEAD)
+TARGET_PLATFORM ?= linux/amd64
+PREREQUISITES := docker python3 uv
+TAG ?= $(shell cat version)
+
+.ONESHELL:
+
+help:
+	@echo "Usage: make <target>"
+	@echo "Targets:"
+	@echo "  help - Show this help message"
