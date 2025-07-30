@@ -1,0 +1,18 @@
+services:
+  mongo:
+    image: mongo:noble #major version
+    container_name: mongo
+    command: --quiet
+    ports:
+      - "27019:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_INITDB_ROOT_USERNAME:-root}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_INITDB_ROOT_PASSWORD:-root}
+      MONGO_INITDB_DATABASE: ${MONGO_INITDB_DATABASE:-evidence}
+    volumes:
+      - ./data/db:/data/db
+    healthcheck:
+      test: echo 'db.runCommand("ping").ok' | mongosh localhost:27019/test --quiet
+      interval: 10s
+      timeout: 5s
+      retries: 5
