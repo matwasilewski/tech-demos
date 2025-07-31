@@ -11,3 +11,7 @@ help:
 	@echo "Usage: make <target>"
 	@echo "Targets:"
 	@echo "  help - Show this help message"
+	@echo "  mongo-demo - Run the MongoDB Beanie demo CLI"
+
+mongo-demo:
+	python services/mongo-exploration/main.py
