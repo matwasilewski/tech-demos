@@ -1,111 +1,62 @@
 #!/usr/bin/env python3
 """
-MongoDB Beanie Test CLI
+MongoDB Beanie Test CLI (Click version)
 
-A simple CLI script to demonstrate Beanie ODM functionality and potential issues.
-This script creates sample data with linked documents and tests various Beanie operations.
+This command-line interface orchestrates the full demonstration flow:
+1. Connect to MongoDB.
+2. Drop the chosen database (clean slate).
+3. Insert the sample documents defined in :pyfile:`mongo_connection.py`.
+4. Dump everything back to stdout so the user can verify the contents.
+
+All heavy lifting lives in :pyfile:`MongoDBManager` – this script is only
+a thin, user-friendly wrapper implemented with *click*.
 """
 
+from __future__ import annotations
+
 import asyncio
-import argparse
 import sys
-from mongo_connection import run_mongodb_test, MongoDBManager
+from typing import NoReturn
+
+import click
+
+from mongo_connection import MongoDBManager
 
 
-def main():
-    parser = argparse.ArgumentParser(
-        description="MongoDB Beanie Test - Demonstrate ODM functionality and potential issues"
-    )
-    parser.add_argument(
-        "--pmc-id", 
-        default="PMC10300813",
-        help="PMC ID to search for (default: PMC10300813)"
-    )
-    parser.add_argument(
-        "--host",
-        default="localhost", 
-        help="MongoDB host (default: localhost)"
-    )
-    parser.add_argument(
-        "--port",
-        type=int,
-        default=27019,
-        help="MongoDB port (default: 27019)"
-    )
-    parser.add_argument(
-        "--database",
-        default="evidence-db-test",
-        help="Database name (default: evidence-db-test)"
-    )
-    parser.add_argument(
-        "--create-only",
-        action="store_true",
-        help="Only create sample data, don't run tests"
-    )
-    parser.add_argument(
-        "--search-only", 
-        action="store_true",
-        help="Only search for existing data, don't create new data"
-    )
-    
-    args = parser.parse_args()
-    
-    print("🚀 Starting MongoDB Beanie Test")
-    print(f"   Database: {args.database}")
-    print(f"   Connection: {args.host}:{args.port}")
-    print(f"   PMC ID: {args.pmc_id}")
-    print()
+@click.command(context_settings={"help_option_names": ["-h", "--help"]})
+@click.option(
+    "--host",
+    default="localhost",
+    show_default=True,
+    help="MongoDB hostname.",
+)
+@click.option(
+    "--port",
+    default=27019,
+    show_default=True,
+    type=int,
+    help="MongoDB port.",
+)
+@click.option(
+    "--database",
+    "--db",
+    default="evidence-db-test",
+    show_default=True,
+    help="Database name to wipe and populate.",
+)
+def cli(host: str, port: int, database: str) -> NoReturn:  # noqa: D401 (Click style)
+    """Run the demo with the given *HOST*, *PORT* and *DATABASE*."""
 
-    if args.create_only:
-        asyncio.run(create_sample_data_only(args))
-    elif args.search_only:
-        asyncio.run(search_data_only(args))
-    else:
-        asyncio.run(run_mongodb_test(args.pmc_id))
+    async def _run() -> None:
+        manager = MongoDBManager(host=host, port=port, database=database)
+        try:
+            await manager.run_demo()
+        except Exception as exc:  # pragma: no cover – top-level exception barrier
+            click.echo(f"❌ Demo failed: {exc}", err=True)
+            sys.exit(1)
 
-
-async def create_sample_data_only(args):
-    """Create sample data only"""
-    manager = MongoDBManager(
-        host=args.host,
-        port=args.port, 
-        database=args.database
-    )
-    
-    try:
-        await manager.connect()
-        await manager.create_sample_data()
-        print("\n✅ Sample data creation completed!")
-    except Exception as e:
-        print(f"\n❌ Failed to create sample data: {e}")
-        sys.exit(1)
-    finally:
-        await manager.disconnect()
-
-
-async def search_data_only(args):
-    """Search for existing data only"""
-    manager = MongoDBManager(
-        host=args.host,
-        port=args.port,
-        database=args.database
-    )
-    
-    try:
-        await manager.connect()
-        articles = await manager.find_articles_by_pmc_id(args.pmc_id)
-        
-        if articles:
-            print(f"\n✅ Found {len(articles)} article(s)")
-        else:  
-            print(f"\n❌ No articles found with PMC ID: {args.pmc_id}")
-            
-    except Exception as e:
-        print(f"\n❌ Search failed: {e}")
-        sys.exit(1)
-    finally:
-        await manager.disconnect()
+    asyncio.run(_run())
 
 
 if __name__ == "__main__":
-    main()
+    cli()
