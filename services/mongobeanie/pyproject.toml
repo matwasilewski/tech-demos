@@ -21,6 +21,9 @@ build-backend = "hatchling.build"
 [tool.hatch.build]
 include = ["src/**"]
 
+[tool.hatch.build.targets.wheel]
+packages = ["src/mongobeanie"]
+
 [tool.uv]
 package = true
 
