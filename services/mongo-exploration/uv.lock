@@ -875,7 +875,7 @@ wheels = [
 ]
 
 [[package]]
-name = "mongodb-test"
+name = "mongodb-exploration"
 version = "0.1.0"
 source = { editable = "." }
 dependencies = [
