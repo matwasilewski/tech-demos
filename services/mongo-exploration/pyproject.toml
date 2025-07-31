@@ -14,5 +14,15 @@ dependencies = [
     "click>=8.1.7",
 ]
 
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build]
+include = ["src/**"]
+
+[tool.uv]
+package = true
+
 [project.scripts]
 mongo-demo = "mongo_connection:run_mongodb_test"
