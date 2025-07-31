@@ -3,3 +3,4 @@ data/
 .env
 .ipynb_checkpoints/
 .claude/
+services/mongo-exploration/__pycache__/*
