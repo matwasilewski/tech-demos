@@ -1,7 +1,6 @@
 services:
   mongo:
     image: mongo:noble #major version
-    container_name: mongo
     command: --quiet
     ports:
       - "27019:27017"
