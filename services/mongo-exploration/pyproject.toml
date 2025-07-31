@@ -11,4 +11,8 @@ dependencies = [
     "motor>=3.3.0",
     "pydantic>=2.11.7",
     "pymongo>=4.13.2",
+    "click>=8.1.7",
 ]
+
+[project.scripts]
+mongo-demo = "mongo_connection:run_mongodb_test"
